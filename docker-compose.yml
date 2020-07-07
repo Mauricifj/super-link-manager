@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  webapp:
+    build:
+      dockerfile: go.dockerfile
+      context: .
+    image: mauricifj/superlink-webapp
+    container_name: superlink-webapp
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    networks:
+      - app_network
+    depends_on:
+      - "postgres"
+
+  postgres:
+    image: postgres:alpine
+    container_name: superlink-postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - app_network
+    env_file:
+      - .env
+    volumes:
+    - ./database/init:/docker-entrypoint-initdb.d
+
+  adminer:
+    image: adminer
+    container_name: superlink-adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+          - app_network
+
+networks:
+  app_network:
+    driver: bridge
